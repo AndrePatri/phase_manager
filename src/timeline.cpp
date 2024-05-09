@@ -458,7 +458,7 @@ bool Timeline::shift()
         // todo: should not erase, but shift below 0. Nodes with negative position are not considered
         if (erase_node_flag)
         {
-            std::cout << "active nodes: " << std::endl;
+            // std::cout << "active nodes: " << std::endl;
             _active_phases[0]->_get_active_nodes().erase(_active_phases[0]->_get_active_nodes().begin());
             // remove depleted phase from _active_phases
             if (_active_phases[0]->_get_active_nodes().empty())
