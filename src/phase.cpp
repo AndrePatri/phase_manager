@@ -274,13 +274,28 @@ bool Phase::addItemReference(ItemWithValuesBase::Ptr item_with_ref, Eigen::Matri
 {
     auto active_nodes = _check_active_nodes(nodes);
 
-    auto item_to_add = std::static_pointer_cast<ItemWithValuesBase>(_add_element(item_with_ref));
+    auto item_to_add = std::dynamic_pointer_cast<ItemWithValuesBase>(_add_element(item_with_ref));
 
 
     auto it = std::make_shared<ItemReferenceManager>(item_to_add, _n_nodes, active_nodes, values);
     _add_element_manager(it);
 
     _items_ref.push_back(item_to_add);
+
+    return true;
+
+}
+
+bool Phase::addItemWeight(ItemWithWeightBase::Ptr item_with_weight, Eigen::MatrixXd values, std::vector<int> nodes)
+{
+    auto active_nodes = _check_active_nodes(nodes);
+
+    auto item_to_add = std::dynamic_pointer_cast<ItemWithWeightBase>(_add_element(item_with_weight));
+
+    auto it = std::make_shared<ItemWeightManager>(item_to_add, _n_nodes, active_nodes, values);
+    _add_element_manager(it);
+
+    _items_weight.push_back(item_to_add);
 
     return true;
 
@@ -569,15 +584,20 @@ PhaseToken::PhaseToken(Phase::Ptr phase):
     {
         if (auto item_ref_manager = std::dynamic_pointer_cast<ItemReferenceManager>(element))
         {
-
             ItemReferenceManager::Ptr item_ref_copy = std::make_unique<ItemReferenceManager>(*item_ref_manager);
-            _cloned_elements[item_ref_copy->getItem()->getName()] = std::move(item_ref_copy);
+            _cloned_ref_elements[item_ref_copy->getItem()->getName()] = std::move(item_ref_copy);
+        }
+
+        if (auto item_weight_manager = std::dynamic_pointer_cast<ItemWeightManager>(element))
+        {
+            ItemWeightManager::Ptr item_weight_copy = std::make_unique<ItemWeightManager>(*item_weight_manager);
+            _cloned_weight_elements[item_weight_copy->getItem()->getName()] = std::move(item_weight_copy);
         }
 
         if (auto parameter_manager = std::dynamic_pointer_cast<ParameterManager>(element))
         {
             auto item_ref_copy = std::make_unique<ParameterManager>(*parameter_manager);
-            _cloned_elements[item_ref_copy->getItem()->getName()] = std::move(item_ref_copy);
+            _cloned_par_elements[item_ref_copy->getItem()->getName()] = std::move(item_ref_copy);
         }
 
     }
@@ -610,7 +630,7 @@ const int PhaseToken::getNNodes()
 bool PhaseToken::setItemReference(std::string item_name, Eigen::MatrixXd values)
 {
     // set item reference for independent phase token
-    for (auto [name, item] : _cloned_elements)
+    for (auto [name, item] : _cloned_ref_elements)
     {
         if (name == item_name)
         {
@@ -621,6 +641,38 @@ bool PhaseToken::setItemReference(std::string item_name, Eigen::MatrixXd values)
 
     return false;
 }
+
+bool PhaseToken::setItemWeight(std::string item_name, Eigen::MatrixXd weight)
+{
+    // set item reference for independent phase token
+    for (auto [name, item] : _cloned_weight_elements)
+    {
+        if (name == item_name)
+        {
+            std::static_pointer_cast<ItemWeightManager>(item)->setWeight(weight);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+bool PhaseToken::setItemNodes(std::string item_name, std::vector<int> nodes)
+{
+    // set nodes for independent phase token
+    for (auto item : _abstract_phase->getItems())
+    {
+        if (item->getName() == item_name)
+        {
+            item->setNodesInternal(nodes, true);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 std::vector<int>& PhaseToken::_get_active_nodes()
 {
@@ -708,15 +760,31 @@ bool PhaseToken::update()
         for (auto element : _abstract_phase->getElements())
         {
             auto it = element;
-            if (_cloned_elements.find(element->getName()) != _cloned_elements.end())
+            if (std::dynamic_pointer_cast<ItemReferenceManager>(it))
             {
-                 it = _cloned_elements[element->getName()];
+                if (_cloned_ref_elements.find(element->getName()) != _cloned_ref_elements.end())
+                {
+                        it = _cloned_ref_elements[element->getName()];
+                }
+            }
+            if (std::dynamic_pointer_cast<ItemWeightManager>(it))
+            {
+                if (_cloned_weight_elements.find(element->getName()) != _cloned_weight_elements.end())
+                {
+                        it = _cloned_weight_elements[element->getName()];
+                }
+            }
+            if (std::dynamic_pointer_cast<ParameterManager>(it))
+            {
+                if (_cloned_par_elements.find(element->getName()) != _cloned_par_elements.end())
+                {
+                        it = _cloned_par_elements[element->getName()];
+                }
             }
 
 //            std::cout << "        --> element updated: " << element->getName() << std::endl;
             auto pair_nodes = _compute_horizon_nodes(element->getSelectedNodes(), _initial_node);
 
-//            std::cout << "updating element " << it->getName() << " (" << it->getItem() << ")" << std::endl;
             it->update(pair_nodes.first, pair_nodes.second);
         }
 

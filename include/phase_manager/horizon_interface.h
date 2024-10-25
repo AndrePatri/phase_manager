@@ -113,6 +113,43 @@ protected:
 };
 
 
+class ItemWithWeightBase : public ItemBase
+{
+public:
+
+    typedef std::shared_ptr<ItemWithWeightBase> Ptr;
+    virtual bool setWeightInternal(Eigen::MatrixXd values, std::vector<int> nodes) = 0;
+    virtual bool setWeightInternal(Eigen::MatrixXd values) = 0;
+
+
+    bool clearWeight()
+    {
+        setWeightInternal(_initial_weights);
+        return true;
+    }
+
+    bool setWeight(Eigen::MatrixXd values, std::vector<int> nodes)
+    {
+        _is_changed = true;
+        setWeightInternal(values, nodes);
+        return true;
+    }
+
+    bool setWeight(Eigen::MatrixXd values)
+    {
+        _is_changed = true;
+        setWeightInternal(values);
+        return true;
+    }
+
+
+protected:
+    // do I need to initialize these?
+    Eigen::MatrixXd _weights;
+    Eigen::MatrixXd _initial_weights;
+};
+
+
 // model that calls the desired function from the original objects
 template <typename T>
 class Wrapper : public ItemBase
