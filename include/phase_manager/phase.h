@@ -39,6 +39,8 @@ public:
     ItemBase::Ptr getItem() {return _item;}
     virtual bool update(std::vector<int> active_phase_nodes, std::vector<int> absolute_nodes) = 0;
 
+    bool setNodes(std::vector<int> nodes){_selected_nodes = nodes; return true;}
+
 private:
 
     std::string _name;
@@ -161,6 +163,57 @@ private:
 
 };
 
+class WeightManager : public NodesManager
+{
+public:
+
+    typedef std::shared_ptr<WeightManager> Ptr;
+
+     WeightManager(ItemWithWeightBase::Ptr item_with_weight,
+                   int n_phase_nodes,
+                   std::vector<int> selected_nodes,
+                   Eigen::MatrixXd values) : NodesManager(item_with_weight, n_phase_nodes, selected_nodes)
+     {
+
+         if (values.cols() != selected_nodes.size())
+         {
+             throw std::invalid_argument("Dimension of values inserted ("
+                                         + std::to_string(values.cols())
+                                         + ") does not match number of nodes specified ("
+                                         + std::to_string(selected_nodes.size()) + ")");
+         }
+
+         // initialize values to zero
+         _weights = Eigen::MatrixXd::Zero(item_with_weight->getDim(), getNNodes());
+         _set_weight(values);
+
+     }
+
+     bool setWeight(Eigen::MatrixXd weight)
+     {
+         return _set_weight(weight);
+     }
+
+protected:
+
+    Eigen::MatrixXd _weights;
+
+private:
+
+    bool _set_weight(Eigen::MatrixXd weights)
+    {
+        int col_weights = 0;
+        for (auto node : getSelectedNodes())
+        {
+            _weights.col(node) = weights.col(col_weights);
+            col_weights++;
+        }
+        return true;
+
+    }
+
+};
+
 class ConstraintManager : public NodesManager
 {
 
@@ -244,6 +297,37 @@ public:
 
         std::dynamic_pointer_cast<ItemWithValuesBase>(getItem())->setNodes(absolute_nodes, false);
         std::dynamic_pointer_cast<ItemWithValuesBase>(getItem())->assign(vals_sliced, absolute_nodes);
+        return true;
+    }
+
+};
+
+class ItemWeightManager : public WeightManager
+{
+public:
+    typedef std::shared_ptr<ItemWeightManager> Ptr;
+
+    ItemWeightManager(ItemWithWeightBase::Ptr item_with_weights,
+                      int n_phase_nodes,
+                      std::vector<int> active_nodes,
+                      Eigen::MatrixXd values) : WeightManager(item_with_weights, n_phase_nodes, active_nodes, values)
+    {
+    }
+
+    ItemWeightManager(const ItemWeightManager &other) : WeightManager(other) {}
+
+    bool update(std::vector<int> active_phase_nodes, std::vector<int> absolute_nodes)
+    {
+
+        Eigen::MatrixXd vals_sliced;
+        vals_sliced.resize(_weights.rows(), active_phase_nodes.size());
+
+        for (int col_i = 0; col_i < vals_sliced.cols(); col_i++)
+        {
+            vals_sliced.col(col_i) = _weights.col(active_phase_nodes[col_i]);
+        }
+
+        std::dynamic_pointer_cast<ItemWithWeightBase>(getItem())->setWeight(vals_sliced, absolute_nodes);
         return true;
     }
 
@@ -363,6 +447,10 @@ public:
                             Eigen::MatrixXd values,
                             std::vector<int> nodes = {});
 
+    bool addItemWeight(ItemWithWeightBase::Ptr item_with_weight,
+                       Eigen::MatrixXd values,
+                       std::vector<int> nodes = {});
+
     std::unordered_set<int> getNodesAsSet();
 
     std::vector<ItemBase::Ptr> getItems();
@@ -407,6 +495,7 @@ private:
 
     std::vector<ItemBase::Ptr> _items_base;
     std::vector<ItemWithValuesBase::Ptr> _items_ref;
+    std::vector<ItemWithWeightBase::Ptr> _items_weight;
 
     std::vector<ItemWithBoundsBase::Ptr> _constraints;
     std::vector<ItemBase::Ptr> _costs;
@@ -472,6 +561,12 @@ public:
     bool setItemReference(std::string item_name,
                           Eigen::MatrixXd values);
 
+    bool setItemNodes(std::string item_name,
+                      std::vector<int> nodes);
+
+    bool setItemWeight(std::string item_name,
+                       Eigen::MatrixXd weight);
+
     bool update();
 
 protected:
@@ -488,7 +583,9 @@ private:
 //    std::vector<ItemReferenceManager::Ptr> _item_refs_token;
 //    std::vector<ParameterManager::Ptr> _parameters_token;
 
-    std::unordered_map<std::string, NodesManager::Ptr> _cloned_elements;
+    std::unordered_map<std::string, ItemWeightManager::Ptr> _cloned_weight_elements;
+    std::unordered_map<std::string, ItemReferenceManager::Ptr> _cloned_ref_elements;
+    std::unordered_map<std::string, ParameterManager::Ptr> _cloned_par_elements;
 
     std::pair<std::vector<int>, std::vector<int>> _compute_horizon_nodes(std::vector<int> nodes, int initial_node);
 

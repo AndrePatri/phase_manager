@@ -151,6 +151,53 @@ protected:
     py::object _pyobj;
 };
 
+struct PyObjWrapperWithWeight : ItemWithWeightBase {
+    PyObjWrapperWithWeight(py::object pyobj):
+        _pyobj(pyobj)
+    {
+        _weights = getWeight(); // desired values
+        _initial_weights = _weights; // initial values from item
+    }
+    std::string getName() {return _pyobj.attr("getName")().cast<std::string>(); }
+    int getDim() {return _pyobj.attr("getDim")().cast<int>(); }
+    std::vector<int> getNodes() {return _pyobj.attr("getNodes")().cast<std::vector<int>>(); }
+    Eigen::MatrixXd getWeight() {return _pyobj.attr("getWeight")().cast<Eigen::MatrixXd>(); }
+
+    bool reset()
+    {
+        // resetting nodes
+        return true;
+    }
+
+    bool setNodesInternal(std::vector<int> nodes, bool erasing)
+    {
+        _pyobj.attr("setNodes")(nodes, erasing);
+        return true;
+    }
+
+    bool setWeightInternal(Eigen::MatrixXd values, std::vector<int> nodes)
+    {
+        _pyobj.attr("setWeight")(values, nodes);
+        return true;
+    }
+
+    bool setWeightInternal(Eigen::MatrixXd values)
+    {
+        _pyobj.attr("setWeight")(values);
+        return true;
+    }
+
+
+    py::object getPyObject()
+    {
+        return _pyobj;
+    }
+
+protected:
+    py::object _pyobj;
+};
+
+
 // ------------------------------------------------------------
 // specialized structs
 
@@ -178,6 +225,19 @@ public:
         std::vector<int> empty_nodes;
         _pyobj.attr("setNodes")(empty_nodes, true);
         clearValues();
+        return true;
+    }
+
+};
+
+class pyItemWeight : public PyObjWrapperWithWeight
+{
+public:
+    pyItemWeight(py::object pyobj) : PyObjWrapperWithWeight(pyobj) {}
+
+    bool reset()
+    {
+        clearWeight();
         return true;
     }
 
@@ -248,6 +308,16 @@ bool add_item_pyobject(Phase& self,
 {
     ItemBase::Ptr item_converted = std::make_shared<pyItem>(item);
     self.addItem(item_converted, nodes);
+    return true;
+}
+
+bool add_item_weight_pyobject(Phase& self,
+                              py::object item,
+                              Eigen::MatrixXd values,
+                              std::vector<int> nodes)
+{
+    ItemWithWeightBase::Ptr item_converted = std::make_shared<pyItemWeight>(item);
+    self.addItemWeight(item_converted, values, nodes);
     return true;
 }
 
@@ -515,6 +585,7 @@ PYBIND11_MODULE(pyphase, m) {
 //            .def("setDuration", &Phase::setDuration)
             .def("addItem", add_item_pyobject, py::arg("item"), py::arg("nodes") = std::vector<int>())
             .def("addItemReference", add_item_reference_pyobject, py::arg("item"), py::arg("values"), py::arg("nodes") = std::vector<int>())
+            .def("addItemWeight", add_item_weight_pyobject, py::arg("item"), py::arg("values"), py::arg("nodes") = std::vector<int>())
             .def("addCost", add_cost_pyobject, py::arg("item"), py::arg("nodes") = std::vector<int>())
             .def("addConstraint", add_constraint_pyobject, py::arg("item"), py::arg("nodes") = std::vector<int>())
             .def("addVariableBounds", add_variable_pyobject, py::arg("item"), py::arg("lower_bounds"), py::arg("upper_bounds"), py::arg("nodes") = std::vector<int>())
@@ -539,6 +610,8 @@ PYBIND11_MODULE(pyphase, m) {
             .def("getPosition", &PhaseToken::getPosition)
             .def("getNNodes", &PhaseToken::getNNodes)
             .def("setItemReference", &PhaseToken::setItemReference)
+            .def("setItemWeight", &PhaseToken::setItemWeight)
+            .def("setItemNodes", &PhaseToken::setItemNodes)
             .def("update", &PhaseToken::update)
             ;
 }

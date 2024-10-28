@@ -18,7 +18,7 @@ def print_items():
     print("cnsrt3: ", cnsrt3.getNodes())
     print("cnsrt4: ", cnsrt4.getNodes())
 
-ns = 20
+ns = 15
 dt = 0.01
 prb = Problem(ns, receding=True)
 prb.setDt(dt)
@@ -42,34 +42,133 @@ phase_5n = timeline_1.createPhase(5, 'phase_5n')
 phase_5n.addItem(cnsrt3)
 phase_5n.addItem(cnsrt4)
 
-for i in range(1):
-    timeline_1.addPhase(phase_5n)
+phase_8n = timeline_1.createPhase(8, 'phase_8n')
+phase_8n.addItem(cnsrt3)
+phase_8n.addItem(cnsrt4)
 
-print_items()
+phase_30n = timeline_1.createPhase(30, 'phase_30n')
+phase_30n.addItem(cnsrt1)
+phase_30n.addItem(cnsrt4)
 
-for i in range(10):
-    pm.shift()
-    print_timeline_phases()
-    # print_items()
+phase_29n = timeline_1.createPhase(29, 'phase_29n')
+phase_29n.addItem(cnsrt1)
+phase_29n.addItem(cnsrt4)
+
+phase_15n = timeline_1.createPhase(15, 'phase_15n')
+phase_15n.addItem(cnsrt1)
+phase_15n.addItem(cnsrt4)
+# ============================================================================
+#test 1
+# timeline_1.addPhase(phase_8n)
+# timeline_1.addPhase(phase_5n)
+# timeline_1.addPhase(phase_8n)
+# timeline_1.addPhase(phase_5n)
+# timeline_1.addPhase(phase_8n)
+# timeline_1.addPhase(phase_5n)
+# timeline_1.addPhase(phase_8n)
+# timeline_1.addPhase(phase_1n)
+
+# ============================================================================
+#test 2
+# timeline_1.addPhase(phase_29n)
+# timeline_1.addPhase(phase_1n)
+# timeline_1.addPhase(phase_1n)
+
+# ============================================================================
+#test 3
+# timeline_1.addPhase(phase_15n)
+# timeline_1.addPhase(phase_30n)
+
+# ============================================================================
+#test 4
+# timeline_1.addPhase(phase_8n, pos=28, absolute_position=True)
+
+# ============================================================================
+# test 5
+# timeline_1.addPhase(phase_15n)
+# timeline_1.addPhase(phase_8n, pos=0)
+# timeline_1.addPhase(phase_5n, pos=0)
+# timeline_1.addPhase(phase_15n, pos=0)
+# timeline_1.addPhase(phase_15n)
+
+# ============================================================================
+# test 6
+# timeline_1.addPhase(phase_15n)
+# timeline_1.addPhase(phase_8n, pos=0)
+# timeline_1.addPhase(phase_1n, pos=1)
+# timeline_1.addPhase(phase_5n, pos=3)
+# timeline_1.addPhase(phase_15n)
+
+# ============================================================================
+# test 7
+# timeline_1.addPhase(phase_15n)
+# timeline_1.addPhase(phase_8n, 20, absolute_position=True)
+# timeline_1.addPhase(phase_1n, 22, absolute_position=True)
+# should fail to add phase_1n
+# ============================================================================
+# test 8
+# timeline_1.addPhase(phase_15n)
+# timeline_1.addPhase(phase_8n, 20, absolute_position=True)
+# timeline_1.addPhase(phase_8n)
+# timeline_1.addPhase(phase_1n, 20, absolute_position=True)
+# should fail to add phase_1n
+# ============================================================================
+# test 8
+# timeline_1.addPhase(phase_15n)
+# pm.shift()
+# pm.shift()
+
+# timeline_1.addPhase(phase_8n)
+# timeline_1.addPhase(phase_8n, absolute_position=True)
+# timeline_1.addPhase(phase_1n)
+# print_timeline_phases()
+# should fail to add phase_1n
+# ============================================================================
+# test 9
+timeline_1.addPhase(phase_15n)
+timeline_1.addPhase(phase_15n)
+pm.shift()
+timeline_1.addPhase(phase_8n, pos=0, absolute_position=False)
+print_timeline_phases()
+exit()
+
+
+
+# timeline_1.addPhase(phase_8n)
 
 exit()
-timeline_1.addPhase(phase_5n)
-# timeline_1.addPhase(phase_5n)
+for i in range(3):
+    pm.shift()
 print_timeline_phases()
 
-print_items()
-
+print("======================================================================")
+timeline_1.addPhase(phase_8n, 2)
+# timeline_1.addPhase(phase_8n, 0, absolute_position=True)
+print_timeline_phases()
+# print_items()
 exit()
-timeline_1.addPhase(phase_1n, 1, absolute_position=True)
-timeline_1.addPhase(phase_1n, 2, absolute_position=True)
-timeline_1.addPhase(phase_1n, 3, absolute_position=True)
-timeline_1.addPhase(phase_1n, 4, absolute_position=True)
-timeline_1.addPhase(phase_5n, 5, absolute_position=True)
-timeline_1.addPhase(phase_5n, 6, absolute_position=True)
-timeline_1.addPhase(phase_1n, 7, absolute_position=True)
-timeline_1.addPhase(phase_1n, 10, absolute_position=True)
-timeline_1.addPhase(phase_5n, 11, absolute_position=True)
+# ============================================================================
 
+for i in range(30):
+    timeline_1.addPhase(phase_1n)
+
+timeline_1.addPhase(phase_8n, 0, absolute_position=True)
+
+for i in range(25):
+    pm.shift()
+
+    print_timeline_phases()
+    print_items()
+exit()
+# timeline_1.addPhase(phase_1n, 2, absolute_position=True)
+# timeline_1.addPhase(phase_1n, 3, absolute_position=True)
+# timeline_1.addPhase(phase_1n, 4, absolute_position=True)
+# timeline_1.addPhase(phase_5n, 5, absolute_position=True)
+# timeline_1.addPhase(phase_5n, 6, absolute_position=True)
+# timeline_1.addPhase(phase_1n, 7, absolute_position=True)
+# timeline_1.addPhase(phase_1n, 10, absolute_position=True)
+# timeline_1.addPhase(phase_5n, 11, absolute_position=True)
+exit()
 # print(" initial condition: ")
 #
 # print("cnsrt1: ", cnsrt1.getNodes())
@@ -81,9 +180,9 @@ num_shift = 100
 for i in range(num_shift):
     print(f" SHIFTING PHASES: iteration {i}")
 
-    if i == 4:
-        print('+==================================+')
-        timeline_1.addPhase(phase_5n, 6, absolute_position=True)
+    # if i == 4:
+    #     print('+==================================+')
+    #     timeline_1.addPhase(phase_5n, 6, absolute_position=True)
 
     pm.shift()
 
