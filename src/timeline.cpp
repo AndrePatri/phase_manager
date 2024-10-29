@@ -414,6 +414,27 @@ PhaseToken::Ptr Timeline::_generate_phase_token(Phase::Ptr phase)
     return std::make_shared<PhaseTokenGate>(phase);
 }
 
+std::vector<int> Timeline::getPhaseIdx(std::shared_ptr<Phase> phase)
+{
+    std::vector<int> phase_idxs;
+    
+    auto n_active_phases = _active_phases.size();
+
+    if (n_active_phases > 0)
+    {
+        int i=0;
+        for (auto active_phase : _active_phases)
+        {
+            if (active_phase->getName()==phase->getName()) {
+                phase_idxs.push_back(i);
+            }
+            i++;
+        }
+    }
+
+    return phase_idxs;
+}
+
 bool Timeline::shift()
 {
     // reset all nodes
@@ -544,7 +565,7 @@ bool Timeline::addPhase(Phase::Ptr phase, int pos, bool absolute_position_flag)
 
 }
 
-Phase::Ptr Timeline:: getRegisteredPhase(std::string name)
+Phase::Ptr Timeline::getRegisteredPhase(std::string name)
 {
 //    std::cout << "checking name: '" << phase_name << "'" <<std::endl;
     if (_registered_phases.find(name) == _registered_phases.end())

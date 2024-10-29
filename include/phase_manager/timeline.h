@@ -39,10 +39,12 @@ public:
 
 
     std::shared_ptr<Phase> getRegisteredPhase(std::string name);
+    
 //    std::vector<std::shared_ptr<Phase>> getRegisteredPhases();
     int getEmptyNodes();
     std::vector<std::shared_ptr<PhaseToken>> getActivePhases();
     std::vector<std::shared_ptr<PhaseToken>> getPhases();
+    std::vector<int> getPhaseIdx(std::shared_ptr<Phase> phase);
     bool shift();
     bool clear();
     ~Timeline();
@@ -61,8 +63,9 @@ private:
     int _pos_to_absolute(int pos);
     bool _check_absolute_pos(int absolute_position, int& phase_position);
 //    std::pair<int, int> _check_absolute_position(int pos);
+    
     std::shared_ptr<PhaseToken> _generate_phase_token(std::shared_ptr<Phase> phase);
-
+    
     std::string _name;
     std::unordered_map<std::string, std::shared_ptr<Phase>> _registered_phases; // container of all the registered phases
     int _n_nodes;
