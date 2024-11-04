@@ -545,11 +545,11 @@ bool Timeline::_reset()
     return true;
 }
 
-bool Timeline::addPhase(Phase::Ptr phase, int pos, bool absolute_position_flag)
+std::pair<bool, std::shared_ptr<PhaseToken>> Timeline::addPhase(Phase::Ptr phase, int pos, bool absolute_position_flag)
 {
     if (!phase)
     {
-        return false;
+        return {false,nullptr};
     }
 
     if (absolute_position_flag && pos == -1)
@@ -557,11 +557,11 @@ bool Timeline::addPhase(Phase::Ptr phase, int pos, bool absolute_position_flag)
         throw std::runtime_error("Can't add absolute position at position -1.");
     }
 
-    bool res = _add_phase(_generate_phase_token(phase), pos, absolute_position_flag);
+    auto phase_token = _generate_phase_token(phase);
+    bool res = _add_phase(phase_token, pos, absolute_position_flag);
 
 
-    return res;
-
+    return {res, phase_token};
 
 }
 

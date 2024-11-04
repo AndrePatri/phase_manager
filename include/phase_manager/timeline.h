@@ -34,7 +34,7 @@ public:
     std::shared_ptr<Phase> createPhase(int n_nodes, std::string name);
 
 //    bool addPhase(std::vector<std::shared_ptr<Phase>> phases, int pos=-1, bool absolute_position_flag=false);
-    bool addPhase(std::shared_ptr<Phase> phase, int pos=-1, bool absolute_position_flag=false);
+    std::pair<bool, std::shared_ptr<PhaseToken>> addPhase(std::shared_ptr<Phase> phase, int pos=-1, bool absolute_position_flag=false);
     bool removePhase(int pos);
 
 
