@@ -184,7 +184,8 @@ public:
          }
 
          // initialize values to zero
-         _weights = Eigen::MatrixXd::Zero(item_with_weight->getDim(), getNNodes());
+//         _weights = Eigen::MatrixXd::Zero(item_with_weight->getDim(), getNNodes());
+          _weights = Eigen::MatrixXd::Zero(1, getNNodes());
          _set_weight(values);
 
      }
