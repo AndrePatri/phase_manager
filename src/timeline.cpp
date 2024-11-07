@@ -2,6 +2,8 @@
 #include <phase_manager/phase_manager.h>
 #include <phase_manager/phase.h>
 
+#include <chrono>
+
 Timeline::Timeline(PhaseManager& phase_manager, int n_nodes, std::string name, bool debug):
     _name(name),
     _n_nodes(n_nodes),
@@ -172,12 +174,32 @@ bool Timeline::_add_phase(std::shared_ptr<PhaseToken> phase_to_add, int pos, boo
         }
         return false;
     }
+    
+    if (phase_to_add->getName()=="flight_ball_1_short") {
+        auto start = std::chrono::high_resolution_clock::now();
 
-    phase_to_add->_set_position(absolute_position);
+        phase_to_add->_set_position(absolute_position);
+        
+        auto set_pos = std::chrono::high_resolution_clock::now();
+        
+        success = _insert_phase(phase_to_add, phase_position);
+
+        auto insert_phase = std::chrono::high_resolution_clock::now();
+
+        std::chrono::duration<double> set_pos_elapsed = set_pos - start;
+        std::chrono::duration<double> insert_elapsed = insert_phase - set_pos;
+        std::cout << "time to set pos for single flight: " << set_pos_elapsed.count() << " seconds" << std::endl;
+        std::cout << "time to insert single flight: " << insert_elapsed.count() << " seconds" << std::endl;
+
+    } else {
+
+        phase_to_add->_set_position(absolute_position);
+
+        success = _insert_phase(phase_to_add, phase_position);
 
 
-    success = _insert_phase(phase_to_add, phase_position);
-
+    }
+    
     if (!success)
     {
         return false;
@@ -225,11 +247,12 @@ bool Timeline::_insert_phase(std::shared_ptr<PhaseToken> phase_to_add, int phase
     // if 'phase_pos' is beyond the horizon (outside of the active_phases), skip useless computation
     if (phase_pos < _active_phases.size())
     {
-
+        if (phase_to_add->getName()=="flight_ball_1_short") {
         // remove all the active_phases after the position 'pos'
 //        std::cout << "position is " << phase_pos << ". Removing all the phases after pos " << phase_pos << " (number of removed phases: " << _active_phases.size() - phase_pos << ")" << std::endl;
+        auto start = std::chrono::high_resolution_clock::now();
         _active_phases.resize(phase_pos);
-
+        auto to_resize = std::chrono::high_resolution_clock::now();
 //        std::cout << "Remaining phases:" << std::endl;
 //        for (auto phase: _active_phases)
 //        {
@@ -241,9 +264,31 @@ bool Timeline::_insert_phase(std::shared_ptr<PhaseToken> phase_to_add, int phase
         // TODO: should I do it only for the items before pos?
         _reset(); // there is way, resetting phase by phase not the whole thing
         // otherwise I have to update like this
+        auto reset_time = std::chrono::high_resolution_clock::now();
         for (auto phase_i : _active_phases)
         {
             phase_i->update();
+        }
+        auto active_ph_update = std::chrono::high_resolution_clock::now();
+        
+        std::chrono::duration<double> resize_elapsed = to_resize - start;
+        std::chrono::duration<double> reset_elapsed = reset_time - to_resize;
+        std::chrono::duration<double> active_update_elapsed = active_ph_update - reset_time;
+
+        std::cout << "time to resize vev: " << resize_elapsed.count() << " seconds" << std::endl;
+        std::cout << "time to reset  " << reset_elapsed.count() << " seconds" << std::endl;
+        std::cout << "time to update active " << active_update_elapsed.count() << " seconds" << std::endl;
+        } else {
+            // remove all the active_phases after the position 'pos'
+            _active_phases.resize(phase_pos);
+            // reset the items (holding all the active nodes)
+            // TODO: should I do it only for the items before pos?
+            _reset(); // there is way, resetting phase by phase not the whole thing
+            // otherwise I have to update like this
+            for (auto phase_i : _active_phases)
+            {
+                phase_i->update();
+            }
         }
     }
 
