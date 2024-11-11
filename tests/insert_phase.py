@@ -30,8 +30,10 @@ phase_3.addItem(cnsrt1)
 print('before adding: ')
 print(cnsrt1.getNodes())
 
-for i in range(2):
-    timeline_1.addPhase(phase_1)
+timeline_1.addPhase(phase_1)
+timeline_1.addPhase(phase_2)
+# for i in range(2):
+#     timeline_1.addPhase(phase_1)
 #
 # for i in range(5):
 #     timeline_1.addPhase(phase_3)
@@ -61,7 +63,6 @@ print("list of phases:")
 for phase in timeline_1.getPhases():
     print(phase.getName())
 
-
 exit()
 # print("empty nodes: ", timelineactive_phase_1.getEmptyNodes())
 # timeline_1.addPhase(phase_2)
@@ -79,15 +80,15 @@ exit()
 #
 print("============================================ SHIFTING ===================================")
 timeline_1.shift()
-# print("==============clearing phase ====================")
-# timeline_1.clear()
-#
-# pos_phase = 0
-# for phase in timeline_1.getPhases():
-#     print(f"{pos_phase}. {phase.getName()}: ")
-#     print(f"     initial position: {phase.getPosition()}")
-#     print(f"     active nodes: {phase.getActiveNodes()}")
-#     pos_phase += 1
-# print("=======================================")
-# for name_c, c in prb.getConstraints().items():
-#     print(name_c, ":  ", c.getNodes())
+print("==============clearing phase ====================")
+timeline_1.clear()
+
+pos_phase = 0
+for phase in timeline_1.getPhases():
+    print(f"{pos_phase}. {phase.getName()}: ")
+    print(f"     initial position: {phase.getPosition()}")
+    print(f"     active nodes: {phase.getActiveNodes()}")
+    pos_phase += 1
+print("=======================================")
+for name_c, c in prb.getConstraints().items():
+    print(name_c, ":  ", c.getNodes())

@@ -123,7 +123,7 @@ bool Timeline::update()
         {
             int active_nodes = phase_nodes;
             // phase is active (even if its tail falls outside the horizon)
-//            std::cout << "   --> Adding phase token (" << phase_token_i << ") '" << phase_token_i->getName() << "' to active phases" << std::endl;;
+//            std::cout << "   --> Adding phase token (" << phase_token_i << ") '" << phase_token_i->getName() << "' to active phases" << std::endl;
             _active_phases.push_back(phase_token_i);
 
             if (initial_node + active_nodes >= _n_nodes)
