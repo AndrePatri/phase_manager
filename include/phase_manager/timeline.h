@@ -42,6 +42,7 @@ public:
     int getEmptyNodes();
     std::vector<std::shared_ptr<PhaseToken>> getActivePhases();
     std::vector<std::shared_ptr<PhaseToken>> getPhases();
+    bool update();
     bool shift();
     bool clear();
     ~Timeline();
@@ -56,7 +57,7 @@ private:
     bool _reset();
     bool _add_phase(std::shared_ptr<PhaseToken> phase_to_add, int pos=-1, bool absolute_position_flag=false);
     bool _insert_phase(std::shared_ptr<PhaseToken> phase, int pos);
-    bool _update_active_phases(std::vector<std::shared_ptr<PhaseToken>> phases);
+
     int _pos_to_absolute(int pos);
     bool _check_absolute_pos(int absolute_position, int& phase_position);
 //    std::pair<int, int> _check_absolute_position(int pos);

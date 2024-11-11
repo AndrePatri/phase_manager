@@ -33,6 +33,16 @@ int PhaseManager::getNodes()
     return _n_nodes;
 }
 
+bool PhaseManager::update()
+{
+    for (auto timeline : _timelines)
+    {
+        timeline.second->update();
+    }
+
+    return true;
+}
+
 bool PhaseManager::shift()
 {
     for (auto timeline : _timelines)

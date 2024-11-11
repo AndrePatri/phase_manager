@@ -22,6 +22,7 @@ PYBIND11_MODULE(pytimeline, m) {
             .def("getEmptyNodes", &Timeline::getEmptyNodes)
             .def("getActivePhases", &Timeline::getActivePhases)
             .def("getPhases", &Timeline::getPhases)
+            .def("update", &Timeline::update)
             .def("shift", &Timeline::shift)
             .def("clear", &Timeline::clear)
             ;

@@ -36,6 +36,7 @@ public:
 //    bool registerPhase(std::string name, std::shared_ptr<Phase> phase);
 //    bool addPhase(std::string name, std::shared_ptr<Phase> phase);
     int getNodes();
+    bool update();
     bool shift();
     bool clear();
 
