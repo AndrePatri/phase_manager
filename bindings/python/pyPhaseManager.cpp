@@ -16,6 +16,7 @@ PYBIND11_MODULE(pymanager, m) {
             .def("getTimelines", static_cast<Timeline::Ptr (PhaseManager::*)(std::string)>(&PhaseManager::getTimelines))
             .def("getTimelines", static_cast<std::unordered_map<std::string, Timeline::Ptr> (PhaseManager::*)()>(&PhaseManager::getTimelines))
 //            .def("addPhase", &PhaseManager::addPhase)
+            .def("update", &PhaseManager::update)
             .def("shift", &PhaseManager::shift)
             .def("clear", &PhaseManager::clear)
             .def("getNodes", &PhaseManager::getNodes)
