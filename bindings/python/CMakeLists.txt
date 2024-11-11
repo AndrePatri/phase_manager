@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 find_package(pybind11 QUIET)
 add_compile_options(-std=c++14)
 
-
 message(STATUS "check for pybind11")
+
 if(${pybind11_FOUND})
 
     message(STATUS "compiling python bindings")
@@ -15,41 +15,40 @@ if(${pybind11_FOUND})
       OUTPUT_VARIABLE PYTHON_SITE
       OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+    if(DEFINED ENV{CONDA_PREFIX}) # if using a conda env, install bindings there
+      set(PYBIND_INSTALL_DIR $ENV{CONDA_PREFIX}/${PYTHON_SITE}/${PROJECT_NAME} CACHE PATH "bindings install prefix" FORCE)
+    else()
+      set(PYBIND_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITE}/${PROJECT_NAME} CACHE PATH "bindings install prefix" FORCE)
+    endif()
+
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
     pybind11_add_module(pyphase pyPhase.cpp)
     target_link_libraries(pyphase PUBLIC phase_manager)
-    install(TARGETS pyphase
-            DESTINATION ${PYTHON_SITE}/${PROJECT_NAME})
-
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-    pybind11_add_module(pytimeline pyTimeline.cpp)
-    target_link_libraries(pytimeline PUBLIC phase_manager)
-    install(TARGETS pytimeline
-            DESTINATION ${PYTHON_SITE}/${PROJECT_NAME})
 
     pybind11_add_module(pymanager pyPhaseManager.cpp)
     target_link_libraries(pymanager PUBLIC phase_manager)
+
+    pybind11_add_module(pytimeline pyTimeline.cpp)
+    target_link_libraries(pytimeline PUBLIC phase_manager)
+    
+    install(TARGETS pytimeline
+            DESTINATION ${PYBIND_INSTALL_DIR})
     install(TARGETS pymanager
-            DESTINATION ${PYTHON_SITE}/${PROJECT_NAME})
+            DESTINATION ${PYBIND_INSTALL_DIR})
+    install(TARGETS pyphase
+            DESTINATION ${PYBIND_INSTALL_DIR})
 
-    pybind11_add_module(pyrosserver pyRosServer.cpp)
-    target_link_libraries(pyrosserver PUBLIC phase_manager)
-    install(TARGETS pyrosserver
-            DESTINATION ${PYTHON_SITE}/${PROJECT_NAME})
+    if(WITH_ROS_COMPONENTS)
+      
+      pybind11_add_module(pyrosserver pyRosServer.cpp)
+      target_link_libraries(pyrosserver PUBLIC phase_manager)
 
-    install(FILES __init__.py DESTINATION ${PYTHON_SITE}/${PROJECT_NAME})
-#    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-#    pybind11_add_module(pyphase_manager pyPhaseManager.cpp)
-#    target_link_libraries(pyci PRIVATE phase_manager)
+      install(TARGETS pyrosserver
+              DESTINATION ${PYBIND_INSTALL_DIR})
 
-#    install(TARGETS pyphase_manager
-#            DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION})
+    endif()
 
-#    install(FILES pyci_all.py
-#            DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION})
-
-#    install(PROGRAMS interactive_client.py
-#            DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+    install(FILES __init__.py DESTINATION ${PYBIND_INSTALL_DIR})    
 
 else()
     message(STATUS "pybind not found")

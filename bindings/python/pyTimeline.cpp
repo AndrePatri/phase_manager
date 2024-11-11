@@ -18,6 +18,7 @@ PYBIND11_MODULE(pytimeline, m) {
             .def("addPhase", &Timeline::addPhase, py::arg("phase"), py::arg("pos") = -1, py::arg("absolute_position") = false)
             .def("removePhase", &Timeline::removePhase)
             .def("getRegisteredPhase", &Timeline::getRegisteredPhase)
+            .def("getPhaseIdx", &Timeline::getPhaseIdx)
 //            .def("getRegisteredPhases", &Timeline::getRegisteredPhases)
             .def("getEmptyNodes", &Timeline::getEmptyNodes)
             .def("getActivePhases", &Timeline::getActivePhases)

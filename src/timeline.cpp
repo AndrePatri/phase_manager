@@ -2,6 +2,8 @@
 #include <phase_manager/phase_manager.h>
 #include <phase_manager/phase.h>
 
+#include <chrono>
+
 Timeline::Timeline(PhaseManager& phase_manager, int n_nodes, std::string name, bool debug):
     _name(name),
     _n_nodes(n_nodes),
@@ -175,9 +177,8 @@ bool Timeline::_add_phase(std::shared_ptr<PhaseToken> phase_to_add, int pos, boo
 
     phase_to_add->_set_position(absolute_position);
 
-
     success = _insert_phase(phase_to_add, phase_position);
-
+    
     if (!success)
     {
         return false;
@@ -194,19 +195,8 @@ bool Timeline::_insert_phase(std::shared_ptr<PhaseToken> phase_to_add, int phase
     bool flag_insert = false;
     if (phase_pos < _active_phases.size())
     {
-
         // remove all the active_phases after the position 'pos'
-//        std::cout << "position is " << phase_pos << ". Removing all the phases after pos " << phase_pos << " (number of removed phases: " << _active_phases.size() - phase_pos << ")" << std::endl;
         _active_phases.resize(phase_pos);
-
-//        std::cout << "Remaining phases:" << std::endl;
-//        for (auto phase: _active_phases)
-//        {
-//            std::cout << phase << " ";
-//        }
-//        std::cout << std::endl;
-
-        flag_insert = true;
         // reset the items (holding all the active nodes)
         // TODO: should I do it only for the items before pos?
 //        _reset(); // there is way, resetting phase by phase not the whole thing
@@ -316,6 +306,27 @@ PhaseToken::Ptr Timeline::_generate_phase_token(Phase::Ptr phase)
     };
 
     return std::make_shared<PhaseTokenGate>(phase);
+}
+
+std::vector<int> Timeline::getPhaseIdx(std::shared_ptr<Phase> phase)
+{
+    std::vector<int> phase_idxs;
+    
+    auto n_active_phases = _active_phases.size();
+
+    if (n_active_phases > 0)
+    {
+        int i=0;
+        for (auto active_phase : _active_phases)
+        {
+            if (active_phase->getName()==phase->getName()) {
+                phase_idxs.push_back(i);
+            }
+            i++;
+        }
+    }
+
+    return phase_idxs;
 }
 
 bool Timeline::shift()
@@ -428,11 +439,11 @@ bool Timeline::_reset()
     return true;
 }
 
-bool Timeline::addPhase(Phase::Ptr phase, int pos, bool absolute_position_flag)
+std::pair<bool, std::shared_ptr<PhaseToken>> Timeline::addPhase(Phase::Ptr phase, int pos, bool absolute_position_flag)
 {
     if (!phase)
     {
-        return false;
+        return {false,nullptr};
     }
 
     if (absolute_position_flag && pos == -1)
@@ -440,11 +451,11 @@ bool Timeline::addPhase(Phase::Ptr phase, int pos, bool absolute_position_flag)
         throw std::runtime_error("Can't add absolute position at position -1.");
     }
 
-    bool res = _add_phase(_generate_phase_token(phase), pos, absolute_position_flag);
+    auto phase_token = _generate_phase_token(phase);
+    bool res = _add_phase(phase_token, pos, absolute_position_flag);
 
 
-    return res;
-
+    return {res, phase_token};
 
 }
 

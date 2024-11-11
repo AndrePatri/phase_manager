@@ -6,6 +6,7 @@
 #include <map>
 #include <unordered_map>
 #include <set>
+#include <string>
 
 class PhaseManager;
 class Phase;
@@ -33,15 +34,17 @@ public:
     std::shared_ptr<Phase> createPhase(int n_nodes, std::string name);
 
 //    bool addPhase(std::vector<std::shared_ptr<Phase>> phases, int pos=-1, bool absolute_position_flag=false);
-    bool addPhase(std::shared_ptr<Phase> phase, int pos=-1, bool absolute_position_flag=false);
+    std::pair<bool, std::shared_ptr<PhaseToken>> addPhase(std::shared_ptr<Phase> phase, int pos=-1, bool absolute_position_flag=false);
     bool removePhase(int pos);
 
 
     std::shared_ptr<Phase> getRegisteredPhase(std::string name);
+    
 //    std::vector<std::shared_ptr<Phase>> getRegisteredPhases();
     int getEmptyNodes();
     std::vector<std::shared_ptr<PhaseToken>> getActivePhases();
     std::vector<std::shared_ptr<PhaseToken>> getPhases();
+    std::vector<int> getPhaseIdx(std::shared_ptr<Phase> phase);
     bool update();
     bool shift();
     bool clear();
@@ -61,8 +64,9 @@ private:
     int _pos_to_absolute(int pos);
     bool _check_absolute_pos(int absolute_position, int& phase_position);
 //    std::pair<int, int> _check_absolute_position(int pos);
+    
     std::shared_ptr<PhaseToken> _generate_phase_token(std::shared_ptr<Phase> phase);
-
+    
     std::string _name;
     std::unordered_map<std::string, std::shared_ptr<Phase>> _registered_phases; // container of all the registered phases
     int _n_nodes;
