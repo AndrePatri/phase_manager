@@ -49,21 +49,25 @@ timeline_1.addPhase(phase_2)
 # timeline_1.addPhase(phase_2, 5)
 # timeline_1.addPhase(phase_2, 5)
 # timeline_1.addPhase(phase_2, 5)
-
-
 timeline_1.update()
-timeline_1.shift()
+
 print('cnsrt1 -- after adding: ')
 print(cnsrt1.getNodes())
 
 print('cnsrt2 -- after adding: ')
 print(cnsrt2.getNodes())
 
-print("list of phases:")
-for phase in timeline_1.getPhases():
-    print(phase.getName())
 
-exit()
+
+for n_shift in range(10):
+    timeline_1.shift()
+    timeline_1.update()
+    print('cnsrt1 -- after shifting: ')
+    print(cnsrt1.getNodes())
+
+    print('cnsrt2 -- after shifting: ')
+    print(cnsrt2.getNodes())
+
 # print("empty nodes: ", timelineactive_phase_1.getEmptyNodes())
 # timeline_1.addPhase(phase_2)
 # timeline_1.addPhase(phase_2, 0)
