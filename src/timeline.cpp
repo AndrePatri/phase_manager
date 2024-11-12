@@ -62,24 +62,27 @@ bool Timeline::addElement(std::shared_ptr<ItemBase> element)
 
     if (it != _elements.end())
     {
+        std::cout << "element " << element->getName() << "already present" << std::endl;
 
-        if (typeid(*it) == typeid(*element))
-        {
-            return false;
-        }
-//        std::cout << " already present (" << _elements[element->getName()] << ")" << std::endl;
-//        std::cout << " ========== " << std::endl;
+//        std::cout << " element to be inserted typeid (" << typeid(*it).name() << ")" << std::endl;
+//        std::cout << " element already present typeid (" << typeid(*element).name() << ")" << std::endl;
+
+//        if (typeid(*it) == typeid(*element))
+//        {
+        return false;
+//        }
+
     }
 
 
 //    std::cout << " ========== " << std::endl;
 
-    _elements[element->getName()] = element;
+    _elements[element->getName()].push_back(element);
 
     return true;
 }
 
-std::shared_ptr<ItemBase> Timeline::getElement(std::string name)
+std::vector<std::shared_ptr<ItemBase>> Timeline::getElement(std::string name)
 {
     auto it = _elements.find(name);
 
@@ -89,7 +92,7 @@ std::shared_ptr<ItemBase> Timeline::getElement(std::string name)
     }
     else
     {
-        return nullptr;
+        return std::vector<std::shared_ptr<ItemBase>>();
     }
 }
 
@@ -183,39 +186,7 @@ bool Timeline::_add_phase(std::shared_ptr<PhaseToken> phase_to_add, int pos, boo
         return false;
     }
 
-
-//    std::cout << "current phases in active phases vector: << ";
-//    for (auto phase : _active_phases)
-//    {
-//       std::cout << phase->getName() << " ";
-//    }
-//    std::cout << ">> (" << _active_phases.size() << ")" << std::endl;
-
-
-//    int counter_i = 1;
-//    std::cout << "current phases: " << std::endl;
-//    for (auto phase : _phases)
-//    {
-
-//        std::cout << counter_i << "-> " << phase->getName() << " (initial position = " << phase->getPosition() << ")" << std::endl;
-
-//        std::cout << "  active nodes: ";
-
-
-//        for (auto j : phase->getActiveNodes())
-//        {
-//            std::cout << j << " ";
-//        }
-//        std::cout << std::endl;
-//        counter_i++;
-//    }
-
-
-//    std::cout << "= = = = = = = = = = = = = = = = = = = = = = = = = = =" << std::endl;
-
-
     return true;
-
 
 }
 
@@ -337,69 +308,6 @@ bool Timeline::_check_absolute_pos(int absolute_position, int& phase_position)
 
 }
 
-//std::pair<int, int> Timeline::_check_absolute_position(int pos)
-//{
-//    // search for the position 'pos', which is to be intended as the absolute position in horizon
-//    // if the absolute position is free, add the phase at that position, pushing the other phases forward
-//    // if not free, do not add the phase
-//    int absolute_position = pos;
-
-//    // if there are no phases, add to specified position
-//    if (_phases.size() == 0)
-//    {
-//        int phase_position = -1;
-//        return std::make_pair(absolute_position, phase_position);
-//    }
-
-//    // if position is after the last occupied node, add to specified position
-//    int last_current_node = _phases.back()->getPosition() + _phases.back()->getNNodes();
-//    if (pos >= last_current_node)
-//    {
-//        int phase_position = -1;
-//        return std::make_pair(absolute_position, phase_position);
-//    }
-
-//    // otherwise, search it in the vector '_phases'
-//    int phase_num = 0;
-//    for (phase_num; phase_num < _phases.size(); phase_num++)
-//    {
-//        // if the absolute phase is in a position already occupied, throw error
-//        if ((pos > _phases[phase_num]->getPosition()) && (pos < _phases[phase_num]->getPosition() + _phases[phase_num]->getNNodes()))
-//        {
-//            if (_debug)
-//            {
-//                std::string text = "absolute position requested (" + std::to_string(pos) + ") is occupied by phase at position: " + std::to_string(phase_num) + ".";
-//                std::cout << "WARNING: " << text << " Phase NOT added." << std::endl;
-//            }
-//            return std::make_pair(-1, -1);
-////            throw std::runtime_error(text);
-//        }
-
-//        if (pos <= _phases[phase_num]->getPosition())
-//        {
-//            break;
-//        }
-//    }
-
-//    /// todo
-//    // once inserted, checking if the phase fits (is not overlapping with the next)
-//    /// changing behaviour: now if the it can be added, it is added. All the others gets pushed further in the timeline
-
-////    if (phase_num < _phases.size() && pos + total_duration > _phases[phase_num]->getPosition())
-////    {
-////        throw std::runtime_error("There is no space left to insert phase. Another phase is starting at node: " + std::to_string(_phases[phase_num]->getPosition()));
-////    }
-
-//    int phase_position = phase_num;
-////    std::cout << "absolute_position: " << absolute_position << std::endl;
-////    std::cout << "phase_position: " << phase_position << std::endl;
-
-//    return std::make_pair(absolute_position, phase_position);
-
-
-//}
-
-
 PhaseToken::Ptr Timeline::_generate_phase_token(Phase::Ptr phase)
 {
     // magic trick because PhaseToken construction is protected (only friends can use it)
@@ -511,14 +419,17 @@ bool Timeline::_reset()
 
     // windows to items stored in phase_manager
 //    std::cout << "--------- resetting phases: ----------" << std::endl;
-    for (auto const & [name, item] : _elements)
+    for (auto const & [name, items] : _elements)
     {
 //        std::cout << name << " (" << item << ") changed? " << item->isChanged() << std::endl;
-        if (item->isChanged())
+        for (auto item : items)
         {
-//            std::cout << "resetting item..." << std::endl;
-            item->reset();
-//             std::cout << "done" << std::endl;
+            if (item->isChanged())
+            {
+    //            std::cout << "resetting item..." << std::endl;
+                item->reset();
+    //             std::cout << "done" << std::endl;
+            }
         }
     }
     return true;
@@ -544,7 +455,7 @@ bool Timeline::addPhase(Phase::Ptr phase, int pos, bool absolute_position_flag)
 
 }
 
-Phase::Ptr Timeline:: getRegisteredPhase(std::string name)
+Phase::Ptr Timeline::getRegisteredPhase(std::string name)
 {
 //    std::cout << "checking name: '" << phase_name << "'" <<std::endl;
     if (_registered_phases.find(name) == _registered_phases.end())
