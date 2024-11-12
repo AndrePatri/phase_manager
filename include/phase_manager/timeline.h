@@ -53,7 +53,7 @@ public:
 protected:
 
     bool addElement(std::shared_ptr<ItemBase> element);
-    std::shared_ptr<ItemBase> getElement(std::string name);
+    std::vector<std::shared_ptr<ItemBase>> getElement(std::string name);
 
 private:
 
@@ -76,7 +76,8 @@ private:
     std::vector<std::shared_ptr<PhaseToken>> _active_phases; // list of all active phases
 
     // keep all the items from horizon
-    std::unordered_map<std::string, std::shared_ptr<ItemBase>> _elements;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<ItemBase>>> _elements;
+
 //    std::vector<std::shared_ptr<ItemWithValuesBase>> _items_ref;
 //    std::vector<std::shared_ptr<ItemWithBoundsBase>> _constraints;
 //    std::vector<std::shared_ptr<ItemBase>> _costs;
