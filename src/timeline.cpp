@@ -62,24 +62,27 @@ bool Timeline::addElement(std::shared_ptr<ItemBase> element)
 
     if (it != _elements.end())
     {
+        std::cout << "element " << element->getName() << "already present" << std::endl;
 
-        if (typeid(*it) == typeid(*element))
-        {
-            return false;
-        }
-//        std::cout << " already present (" << _elements[element->getName()] << ")" << std::endl;
-//        std::cout << " ========== " << std::endl;
+//        std::cout << " element to be inserted typeid (" << typeid(*it).name() << ")" << std::endl;
+//        std::cout << " element already present typeid (" << typeid(*element).name() << ")" << std::endl;
+
+//        if (typeid(*it) == typeid(*element))
+//        {
+        return false;
+//        }
+
     }
 
 
 //    std::cout << " ========== " << std::endl;
 
-    _elements[element->getName()] = element;
+    _elements[element->getName()].push_back(element);
 
     return true;
 }
 
-std::shared_ptr<ItemBase> Timeline::getElement(std::string name)
+std::vector<std::shared_ptr<ItemBase>> Timeline::getElement(std::string name)
 {
     auto it = _elements.find(name);
 
@@ -89,7 +92,7 @@ std::shared_ptr<ItemBase> Timeline::getElement(std::string name)
     }
     else
     {
-        return nullptr;
+        return std::vector<std::shared_ptr<ItemBase>>();
     }
 }
 
@@ -415,14 +418,17 @@ bool Timeline::_reset()
 
     // windows to items stored in phase_manager
 //    std::cout << "--------- resetting phases: ----------" << std::endl;
-    for (auto const & [name, item] : _elements)
+    for (auto const & [name, items] : _elements)
     {
 //        std::cout << name << " (" << item << ") changed? " << item->isChanged() << std::endl;
-        if (item->isChanged())
+        for (auto item : items)
         {
-//            std::cout << "resetting item..." << std::endl;
-            item->reset();
-//             std::cout << "done" << std::endl;
+            if (item->isChanged())
+            {
+    //            std::cout << "resetting item..." << std::endl;
+                item->reset();
+    //             std::cout << "done" << std::endl;
+            }
         }
     }
     return true;

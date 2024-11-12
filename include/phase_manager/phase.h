@@ -185,8 +185,9 @@ public:
 
          // initialize values to zero
 //         _weights = Eigen::MatrixXd::Zero(item_with_weight->getDim(), getNNodes());
-          _weights = Eigen::MatrixXd::Zero(1, getNNodes());
-         _set_weight(values);
+            _weights = Eigen::MatrixXd::Zero(1, getNNodes());
+
+            _set_weight(values);
 
      }
 
@@ -321,7 +322,9 @@ public:
     {
 
         Eigen::MatrixXd vals_sliced;
+
         vals_sliced.resize(_weights.rows(), active_phase_nodes.size());
+
 
         for (int col_i = 0; col_i < vals_sliced.cols(); col_i++)
         {
@@ -473,7 +476,7 @@ public:
 
 private:
 
-    ItemBase::Ptr _add_element(ItemBase::Ptr elem);
+    bool _add_element(ItemBase::Ptr elem);
     bool _add_element_manager(NodesManager::Ptr element);
     bool _init_nodes(int n_nodes);
 //    InfoContainer::Ptr _get_info_element(std::string elem_name);

@@ -1,4 +1,4 @@
-#include <phase_manager/phase.h>
+﻿#include <phase_manager/phase.h>
 #include <phase_manager/timeline.h>
 
 Phase::Phase(Timeline& timeline, int n_nodes, std::string name):
@@ -29,242 +29,17 @@ int Phase::getNNodes()
     return _n_nodes;
 }
 
-//bool Phase::setDuration(int new_n_nodes)
-//{
-//    // Stretch the duration of the phase.
-//    // The function computes a stretching factor given the number of new nodes
-//    // If the phase contains:
-//    //  - values for the parameters: it replicates old ones
-//    //  - bounds for variables: it replicates old ones
-//    std::cout << "This feature is still experimental. " << std::endl;
-
-//    double stretch_factor = static_cast<double>(new_n_nodes)/_n_nodes;
-//    auto stretch_map = _stretch(_vec_nodes, stretch_factor);
-//    _n_nodes = new_n_nodes;
-//    _init_nodes(_n_nodes); // require to recompute vec_nodes and set_nodes;
-
-//    for (auto& elem : _info_items_base)
-//    {
-//        _stretch(elem.second->nodes, stretch_factor);
-//    }
-
-//    for (auto& elem : _info_items_ref)
-//    {
-//        auto old_nodes = elem.second->nodes;
-
-//        elem.second->nodes = _extract_stretch_nodes(stretch_map, elem.second->nodes);
-//        // setting the values of the new nodes to zero
-//        Eigen::MatrixXd val_temp(elem.second->values.rows(), elem.second->nodes.size());
-
-//        int initial_col = 0;
-//        for (int col_i = 0; col_i < old_nodes.size(); col_i++)
-//        {
-//            for (int col_j = 0; col_j < stretch_map[old_nodes[col_i]].size(); col_j++)
-//            {
-//                val_temp.col(initial_col + col_j) = elem.second->values.col(col_i);
-//            }
-//            initial_col += stretch_map[old_nodes[col_i]].size();
-//        }
-
-//        elem.second->values = val_temp;
-//    }
-
-//    for (auto& elem : _info_constraints)
-//    {
-//        elem.second->nodes = _extract_stretch_nodes(stretch_map, elem.second->nodes);
-//    }
-
-//    for (auto& elem : _info_costs)
-//    {
-//        elem.second->nodes = _extract_stretch_nodes(stretch_map, elem.second->nodes);
-//    }
-
-//    for (auto& elem : _info_variables)
-//    {
-//        auto old_nodes = elem.second->nodes;
-//        elem.second->nodes = _extract_stretch_nodes(stretch_map, elem.second->nodes);
-
-//        // setting the bounds of the new nodes to zero
-//        Eigen::MatrixXd lb_temp(elem.second->lower_bounds.rows(), elem.second->nodes.size());
-//        Eigen::MatrixXd ub_temp(elem.second->upper_bounds.rows(), elem.second->nodes.size());
-
-//        int initial_col = 0;
-//        for (int col_i = 0; col_i < old_nodes.size(); col_i++)
-//        {
-//            for (int col_j = 0; col_j < stretch_map[old_nodes[col_i]].size(); col_j++)
-//            {
-//                lb_temp.col(initial_col + col_j) = elem.second->lower_bounds.col(col_i);
-//                ub_temp.col(initial_col + col_j) = elem.second->upper_bounds.col(col_i);
-//            }
-//            initial_col += stretch_map[old_nodes[col_i]].size();
-//        }
-
-//        elem.second->lower_bounds = lb_temp;
-//        elem.second->upper_bounds = ub_temp;
-//    }
-
-//    for (auto& elem : _info_parameters)
-//    {
-//        auto old_nodes = elem.second->nodes;
-//        elem.second->nodes = _extract_stretch_nodes(stretch_map, elem.second->nodes);
-
-//        // set new values with copies of the values at the old nodes
-//        // for each new values, set it with the expanded old node
-//        Eigen::MatrixXd val_temp(elem.second->values.rows(), elem.second->nodes.size());
-
-//        int initial_col = 0;
-//        for (int col_i = 0; col_i < old_nodes.size(); col_i++)
-//        {
-//            for (int col_j = 0; col_j < stretch_map[old_nodes[col_i]].size(); col_j++)
-//            {
-//                val_temp.col(initial_col + col_j) = elem.second->values.col(col_i);
-//            }
-//            initial_col += stretch_map[old_nodes[col_i]].size();
-//        }
-
-//        elem.second->values = val_temp;
-
-////        std::cout << "old nodes: " << std::endl;
-////        for (auto node : old_nodes)
-////        {
-////            std::cout << node << " ";
-////        }
-////        std::cout << std::endl;
-
-////        std::cout << "nodes: " << std::endl;
-////        for (auto node : elem.second->nodes)
-////        {
-////            std::cout << node << " ";
-////        }
-////        std::cout << std::endl;
-
-////        std::cout << "values: " << std::endl;
-////        std::cout << elem.second->values << std::endl;
-
-//    }
-
-//    return true;
-//}
-
-//InfoContainer::Ptr Phase::_get_info_element(std::string elem_name)
-//{
-//    auto it = _elem_map.find(elem_name);
-//    if (it == _elem_map.end())
-//    {
-//        return nullptr;
-//    }
-
-
-//    auto elem = it->second;
-//    auto itt = _info_elements.find(elem);
-
-
-//    if (itt == _info_elements.end())
-//    {
-//        throw std::runtime_error(std::string("There is a problem here! Contact the mantainer. Element exists in map but there are no info about it? "));
-//    }
-
-//    return itt->second;
-//}
-
-
-//bool Phase::setElemNodes(std::string elem_name, std::vector<int> nodes, const Eigen::MatrixXd& value_1, const Eigen::MatrixXd& value_2)
-//{
-//    ///
-//    /// \brief set new nodes, values or bounds of element, overwriting everything.
-//    /// if element only has nodes, value_1 and value_2 are ignored
-//    /// if element has bounds, value_1 is lower bounds and value_2 is upper bounds (if no value_2 is specified, lower bounds == upper bounds)
-//    /// if element has values, value_1 is value
-
-//    auto info = _get_info_element(elem_name);
-
-//    if (!info)
-//    {
-//        throw std::runtime_error(std::string("Element does not exist in phase."));
-//    }
-
-//    auto active_nodes = _check_active_nodes(nodes);
-
-//    info->nodes = active_nodes;
-
-//    if (std::dynamic_pointer_cast<BoundsContainer>(info))
-//    {
-//        auto bounds_info = std::dynamic_pointer_cast<BoundsContainer>(info);
-
-//        if (value_1.rows() == 0 && value_1.cols() == 0)
-//        {
-//            throw std::runtime_error(std::string("No value provided for derived element."));
-//        }
-
-//        if ((value_1.cols() != nodes.size()) || (value_1.rows() != bounds_info->lower_bounds.rows()))
-//        {
-//            throw std::runtime_error(std::string("Wrong dimension of lower bounds inserted."));
-//        }
-
-//        bounds_info->lower_bounds = value_1;
-
-//        if (value_2.rows() == 0 && value_2.cols() == 0)
-//        {
-//            bounds_info->upper_bounds = value_1;
-//        }
-//        else
-//        {
-//            if ((value_2.cols() != nodes.size()) || (value_2.rows() != bounds_info->upper_bounds.rows()))
-//            {
-//                throw std::runtime_error(std::string("Wrong dimension of upper bounds inserted."));
-//            }
-
-//            bounds_info->upper_bounds = value_2;
-//        }
-//    }
-//    else if (std::dynamic_pointer_cast<ValuesContainer>(info))
-//    {
-
-//        auto value_info = std::dynamic_pointer_cast<ValuesContainer>(info);
-
-//        if (value_1.rows() == 0 && value_1.cols() == 0)
-//        {
-//            throw std::runtime_error(std::string("No value provided for derived element."));
-//        }
-
-//        if (value_2.rows() != 0 && value_2.cols() != 0)
-//        {
-//            std::cout << "Second value has no meaning for a parameter. Ignoring." << std::endl;
-//        }
-
-//        if ((value_1.cols() != nodes.size()) || (value_1.rows() != value_info->values.rows()))
-//        {
-//            throw std::runtime_error(std::string("Wrong dimension of values inserted."));
-//        }
-
-//        value_info->values = value_1;
-
-//    }
-//    else
-//    {
-//        std::cout << "it's a base container. Changing nodes only" << std::endl;
-//    }
-
-//    return true;
-
-//}
 
 bool Phase::addItem(ItemBase::Ptr item, std::vector<int> nodes)
 {
     auto active_nodes = _check_active_nodes(nodes);
 
-    auto item_to_add = _add_element(item);
-//    if (!_timeline.addElement(item))
-//    {
-//        item_to_add = _timeline.getElement(item->getName());
-//    }
+    _add_element(item);
 
-    // add item to timeline database
-
-    auto it = std::make_shared<ItemManager>(item_to_add, _n_nodes, active_nodes);
+    auto it = std::make_shared<ItemManager>(item, _n_nodes, active_nodes);
     _add_element_manager(it);
 
-    _items_base.push_back(item_to_add);
+    _items_base.push_back(item);
 
     return true;
 
@@ -274,13 +49,12 @@ bool Phase::addItemReference(ItemWithValuesBase::Ptr item_with_ref, Eigen::Matri
 {
     auto active_nodes = _check_active_nodes(nodes);
 
-    auto item_to_add = std::dynamic_pointer_cast<ItemWithValuesBase>(_add_element(item_with_ref));
+    _add_element(item_with_ref);
 
-
-    auto it = std::make_shared<ItemReferenceManager>(item_to_add, _n_nodes, active_nodes, values);
+    auto it = std::make_shared<ItemReferenceManager>(item_with_ref, _n_nodes, active_nodes, values);
     _add_element_manager(it);
 
-    _items_ref.push_back(item_to_add);
+    _items_ref.push_back(item_with_ref);
 
     return true;
 
@@ -290,12 +64,14 @@ bool Phase::addItemWeight(ItemWithWeightBase::Ptr item_with_weight, Eigen::Matri
 {
     auto active_nodes = _check_active_nodes(nodes);
 
-    auto item_to_add = std::dynamic_pointer_cast<ItemWithWeightBase>(_add_element(item_with_weight));
+    _add_element(item_with_weight);
 
-    auto it = std::make_shared<ItemWeightManager>(item_to_add, _n_nodes, active_nodes, values);
+    auto it = std::make_shared<ItemWeightManager>(item_with_weight, _n_nodes, active_nodes, values);
+
     _add_element_manager(it);
 
-    _items_weight.push_back(item_to_add);
+
+    _items_weight.push_back(item_with_weight);
 
     return true;
 
@@ -306,13 +82,12 @@ bool Phase::addConstraint(ItemWithBoundsBase::Ptr constraint, std::vector<int> n
 
     auto active_nodes = _check_active_nodes(nodes);
 
-    auto item_to_add = std::static_pointer_cast<ItemWithBoundsBase>(_add_element(constraint));
+    _add_element(constraint);
 
-
-    auto it = std::make_shared<ConstraintManager>(item_to_add, _n_nodes, active_nodes);
+    auto it = std::make_shared<ConstraintManager>(constraint, _n_nodes, active_nodes);
     _add_element_manager(it);
 
-    _constraints.push_back(item_to_add);
+    _constraints.push_back(constraint);
 
     return true;
 }
@@ -322,13 +97,12 @@ bool Phase::addCost(ItemBase::Ptr cost, std::vector<int> nodes)
 {
     auto active_nodes = _check_active_nodes(nodes);
 
-    auto item_to_add = _add_element(cost);
+    _add_element(cost);
 
-
-    auto it = std::make_shared<CostManager>(item_to_add, _n_nodes, active_nodes);
+    auto it = std::make_shared<CostManager>(cost, _n_nodes, active_nodes);
     _add_element_manager(it);
 
-    _costs.push_back(item_to_add);
+    _costs.push_back(cost);
 
     return true;
 }
@@ -339,12 +113,12 @@ bool Phase::addVariableBounds(ItemWithBoundsBase::Ptr variable, Eigen::MatrixXd 
     auto active_nodes = _check_active_nodes(nodes);
     // bounds are updated only on the active nodes
 
-    auto item_to_add = std::static_pointer_cast<ItemWithBoundsBase>(_add_element(variable));
+    _add_element(variable);
 
-    auto it = std::make_shared<VariableManager>(item_to_add, _n_nodes, active_nodes, lower_bounds, upper_bounds);
+    auto it = std::make_shared<VariableManager>(variable, _n_nodes, active_nodes, lower_bounds, upper_bounds);
     _add_element_manager(it);
 
-    _variables.push_back(item_to_add);
+    _variables.push_back(variable);
 
     return true;
 }
@@ -355,12 +129,12 @@ bool Phase::addParameterValues(ItemWithValuesBase::Ptr parameter, Eigen::MatrixX
     auto active_nodes = _check_active_nodes(nodes);
     // bounds are updated only on the active nodes
 
-    auto item_to_add = std::static_pointer_cast<ItemWithValuesBase>(_add_element(parameter));
+    _add_element(parameter);
 
-    auto it = std::make_shared<ParameterManager>(item_to_add, _n_nodes, active_nodes, values);
+    auto it = std::make_shared<ParameterManager>(parameter, _n_nodes, active_nodes, values);
     _add_element_manager(it);
 
-    _parameters.push_back(item_to_add);
+    _parameters.push_back(parameter);
     return true;
 }
 
@@ -475,13 +249,9 @@ std::vector<NodesManager::Ptr> Phase::getElements()
     return _elements;
 }
 
-ItemBase::Ptr Phase::_add_element(ItemBase::Ptr elem)
+bool Phase::_add_element(ItemBase::Ptr elem)
 {
-    if (!_timeline.addElement(elem))
-    {
-        return _timeline.getElement(elem->getName());
-    }
-    return elem;
+    return _timeline.addElement(elem);
 }
 
 //std::unordered_map<ItemBase::Ptr, InfoContainer::Ptr> Phase::getItemsInfo()

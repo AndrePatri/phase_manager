@@ -51,7 +51,7 @@ class FakeItem:
 
 a = prb.createStateVariable('a', 1)
 par = prb.createParameter('par', 3)
-weight = prb.createParameter('weight', 3)
+weight = prb.createParameter('weight', 1)
 
 # print('initial values: \n', par.getValues())
 # print('initial nodes: \n', par.getNodes())
@@ -67,12 +67,9 @@ traj_1 = np.array([[1, 2, 3, 4, 5],
 
 phase_1.addItemReference(fake_item, traj_1)
 
-weights_1 = np.array([[0.1, 0.1, 0.5, 0.1, 0.1],
-                      [0.1, 0.1, 0.5, 0.1, 0.1],
-                      [0.1, 0.1, 0.5, 0.1, 0.1]])
+weights_1 = np.array([[0.1, 0.1, 0.5, 0.1, 0.1]])
 
 phase_1.addItemWeight(fake_item, weights_1)
-
 
 timeline_1.addPhase(phase_1)
 
@@ -97,17 +94,24 @@ print('values after modifying phase: ')
 print(par.getValues())
 
 
-timeline_1.getPhases()[0].setItemWeight('fake_item', np.array([[0.99, 3.5, 2.2, 1.1, 3.1],
-                                                               [0.99, 3.5, 2.2, 1.1, 3.1],
-                                                               [0.99, 3.5, 2.2, 1.1, 3.1]]))
+timeline_1.getPhases()[0].setItemWeight('fake_item', np.array([[0.99, 3.5, 2.2, 1.1, 3.1]]))
 timeline_1.getPhases()[0].update()
 print('values after modifying phase: ')
 print(weight.getValues())
-#
 
 
 
 
 
-# for phase in timeline_1.getPhases():
-#     print(phase.getName())
+
+
+
+
+
+
+
+
+
+
+
+
